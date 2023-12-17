@@ -83,9 +83,9 @@ if not openai_api_key:
 uploaded_files = st.sidebar.file_uploader(
     label="Upload PDF files", type=["pdf"], accept_multiple_files=True
 )
-# if not uploaded_files:
-#     st.info("Please upload PDF documents to continue.")
-#     st.stop()
+if not uploaded_files:
+    st.info("Please upload PDF documents to continue.")
+    st.stop()
 
 retriever = configure_retriever(uploaded_files)
 
