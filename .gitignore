@@ -17,3 +17,6 @@
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/modules.xml
+
+# Environment
+.env

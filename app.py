@@ -1,6 +1,8 @@
 import os
 import tempfile
 import streamlit as st
+import pinecone
+
 from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
 from langchain.memory import ConversationBufferMemory
@@ -8,24 +10,33 @@ from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
-from langchain.vectorstores import DocArrayInMemorySearch
+from langchain.vectorstores import Pinecone
 from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+from dotenv import load_dotenv
+load_dotenv()
 
 st.set_page_config(page_title="LangChain: Chat with Documents", page_icon="🦜")
 st.title("🦜 LangChain: Chat with Documents")
 
+# initialize pinecone
+pinecone.init(
+    api_key=os.getenv("PINECONE_API_KEY"),
+    environment=os.getenv("PINECONE_ENV"),
+)
 
-@st.cache_resource(ttl="1h")
 def configure_retriever(uploaded_files):
     # Read documents
     docs = []
     temp_dir = tempfile.TemporaryDirectory()
+    index_name = "file-name"
     for file in uploaded_files:
         temp_filepath = os.path.join(temp_dir.name, file.name)
         with open(temp_filepath, "wb") as f:
             f.write(file.getvalue())
         loader = PyPDFLoader(temp_filepath)
         docs.extend(loader.load())
+        index_name = file.name.split(".")[0]
 
     # Split documents
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
@@ -33,13 +44,20 @@ def configure_retriever(uploaded_files):
 
     # Create embeddings and store in vectordb
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectordb = DocArrayInMemorySearch.from_documents(splits, embeddings)
 
-    # Define retriever
-    retriever = vectordb.as_retriever(search_type="mmr", search_kwargs={"k": 2, "fetch_k": 4})
-
-    return retriever
-
+    # First, check if our index already exists. If it doesn't, we create it
+    if index_name not in pinecone.list_indexes():
+        # we create a new index
+        pinecone.create_index(name=index_name, metric="cosine", dimension=384)
+        # The OpenAI embedding model `text-embedding-ada-002 uses 1536 dimensions`
+        docsearch = Pinecone.from_documents(docs, embeddings, index_name=index_name)
+        retriever = docsearch.as_retriever(search_type="mmr")
+        return retriever
+    else:
+        st.toast("Index for this file already exists. Initializing retriever.")
+        docsearch = Pinecone.from_existing_index(index_name, embeddings)
+        retriever = docsearch.as_retriever(search_type="mmr")
+        return retriever
 
 class StreamHandler(BaseCallbackHandler):
     def __init__(self, container: st.delta_generator.DeltaGenerator, initial_text: str = ""):
@@ -75,7 +93,7 @@ class PrintRetrievalHandler(BaseCallbackHandler):
         self.status.update(state="complete")
 
 
-openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.")
     st.stop()
