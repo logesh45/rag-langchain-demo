@@ -7,6 +7,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.document_loaders import PyPDFLoader
 from langchain.memory import ConversationBufferMemory
 from langchain.memory.chat_message_histories import StreamlitChatMessageHistory
+from langchain.memory.chat_message_histories import SQLChatMessageHistory
 from langchain.embeddings import HuggingFaceEmbeddings
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
@@ -98,17 +99,26 @@ if not openai_api_key:
     st.info("Please add your OpenAI API key to continue.")
     st.stop()
 
+username = st.sidebar.text_input(
+    label="Enter your username"
+)
+
 uploaded_files = st.sidebar.file_uploader(
     label="Upload PDF files", type=["pdf"], accept_multiple_files=True
 )
+
 if not uploaded_files:
-    st.info("Please upload PDF documents to continue.")
+    st.info("Please add PDF documents to files folder continue.")
     st.stop()
 
 retriever = configure_retriever(uploaded_files)
 
-# Setup memory for contextual conversation
-msgs = StreamlitChatMessageHistory()
+db_path = 'local_sqlite_db.db'
+msgs = SQLChatMessageHistory(
+    session_id=username, 
+    connection_string="sqlite:///" + db_path  # This is the SQLite connection string
+)
+
 memory = ConversationBufferMemory(memory_key="chat_history", chat_memory=msgs, return_messages=True)
 
 # Setup LLM and QA chain

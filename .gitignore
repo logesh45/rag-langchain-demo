@@ -20,3 +20,5 @@
 
 # Environment
 .env
+/files
+local_sqlite_db.db
