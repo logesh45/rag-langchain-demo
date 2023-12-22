@@ -20,5 +20,6 @@
 
 # Environment
 .env
-/files
+/files/*
+!files/.gitkeep
 local_sqlite_db.db
