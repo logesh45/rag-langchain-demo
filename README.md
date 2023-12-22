@@ -39,3 +39,7 @@
 * Ensure PDFs exist in `files/` before running `embeddings.py`.
 * The app uses `gpt-3.5-turbo` from OpenAI, requiring an OpenAI API key.
 * Adjust embeddings model and retrieval parameters for fine-tuning.
+
+**License**
+
+This project is licensed under the MIT License - see the LICENSE file for details.
