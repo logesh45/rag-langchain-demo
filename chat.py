@@ -19,11 +19,10 @@ st.set_page_config(page_title="Chat with Preloaded index", page_icon="📚")
 st.title("RAG using LangChain and Pinecone")
 
 # initialize pinecone
-pinecone.init(
+Pc(
     api_key=os.getenv("PINECONE_API_KEY"),
     environment=os.getenv("PINECONE_ENV"),
 )
-
 
 def configure_retriever(index_name):
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
