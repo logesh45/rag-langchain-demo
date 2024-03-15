@@ -1,7 +1,7 @@
 import os
 import tempfile
 import streamlit as st
-import pinecone
+from pinecone import Pinecone as Pc
 
 from langchain.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
@@ -75,6 +75,10 @@ if not openai_api_key:
 username = st.sidebar.text_input(
     label="Enter your username"
 )
+
+if not username:
+    st.info("Please enter your username to continue.")
+    st.stop()
 
 retriever = configure_retriever("preloaded-index")
 

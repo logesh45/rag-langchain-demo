@@ -6,7 +6,7 @@
     * `PINECONE_API_KEY`: Your Pinecone API key
     * `PINECONE_ENV`: Your Pinecone environment name (e.g., "dev")
     * `OPENAI_API_KEY`: Your OpenAI API key
-* Install dependencies: `pip install streamlit pinecone langchain PyPDF2`
+* Install dependencies: `pip install streamlit pinecone-client langchain PyPDF2`
 
 **2. Creating Embeddings**
 
