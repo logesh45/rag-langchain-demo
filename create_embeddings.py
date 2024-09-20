@@ -1,17 +1,18 @@
 import os
 import sys
 
-import pinecone
+from pinecone import Pinecone as Pc
+
 from dotenv import load_dotenv
-from langchain.document_loaders import PyPDFLoader
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.document_loaders import PyPDFLoader
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Pinecone
+from langchain_community.vectorstores import Pinecone
 
 load_dotenv()
 
 # initialize pinecone
-pinecone.init(
+pinecone = Pc(
     api_key=os.getenv("PINECONE_API_KEY"),
     environment=os.getenv("PINECONE_ENV"),
 )
@@ -34,7 +35,7 @@ def create_embeddings(uploaded_files):
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # First, check if our index already exists. If it doesn't, we create it
-    if index_name not in pinecone.list_indexes():
+    if index_name not in pinecone.list_indexes().names():
         # we create a new index
         pinecone.create_index(name=index_name, metric="cosine", dimension=384)
         # The OpenAI embedding model `text-embedding-ada-002 uses 1536 dimensions`

@@ -3,13 +3,14 @@ import tempfile
 import streamlit as st
 from pinecone import Pinecone as Pc
 
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain.memory.chat_message_histories import SQLChatMessageHistory
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.chat_message_histories import SQLChatMessageHistory
+
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
-from langchain.vectorstores import Pinecone
+from langchain_community.vectorstores import Pinecone
 
 from dotenv import load_dotenv
 

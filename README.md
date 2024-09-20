@@ -1,6 +1,17 @@
 ## Running the Retrieval-Augmented Chat Application
 
+
 **1. Environment Setup**
+
+This project uses Poetry for dependency management. 
+
+
+   * If you don't have Poetry installed, follow the instructions on the official website: [https://python-poetry.org/docs/#installation](https://python-poetry.org/docs/#installation)
+
+   * Navigate to the project directory and run:
+        ```bash
+        poetry install
+        ```
 
 * Create a `.env` file in the project directory and add:
     * `PINECONE_API_KEY`: Your Pinecone API key
