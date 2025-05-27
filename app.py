@@ -3,15 +3,15 @@ import tempfile
 import streamlit as st
 import pinecone
 
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import PyPDFLoader
+from langchain_openai import ChatOpenAI
+from langchain_community.document_loaders import PyPDFLoader
 from langchain.memory import ConversationBufferMemory
-from langchain.memory.chat_message_histories import SQLChatMessageHistory
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.callbacks.base import BaseCallbackHandler
+from langchain_community.chat_message_histories import SQLChatMessageHistory
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_core.callbacks import BaseCallbackHandler
 from langchain.chains import ConversationalRetrievalChain
-from langchain.vectorstores import Pinecone
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import Pinecone
+from langchain_text_splitters import RecursiveCharacterTextSplitter # Updated import
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -46,7 +46,9 @@ def configure_retriever(uploaded_files):
     embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
     # First, check if our index already exists. If it doesn't, we create it
-    if index_name not in pinecone.list_indexes():
+    # Updated to reflect pinecone-client v5.x.x list_indexes() behavior
+    current_pinecone_indexes = [index.name for index in pinecone.list_indexes().indexes]
+    if index_name not in current_pinecone_indexes:
         # we create a new index
         pinecone.create_index(name=index_name, metric="cosine", dimension=384)
         # The OpenAI embedding model `text-embedding-ada-002 uses 1536 dimensions`
